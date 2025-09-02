@@ -3,10 +3,10 @@
 const assert = require("node:assert");
 const { describe, it, beforeEach } = require("node:test");
 const { misc } = require("naughty-util");
-const SentinelCircularDLL = require("../lib/DLL/circular-sentinel/index.js");
-const SortedDLL = require("../lib/DLL/sorted-sentinel");
-const AdjustedSLL = require("../lib/SLL/adjusted/index.js");
-const SLL = require("../lib/SLL/plain/index.js");
+const SentinelCircularDLL = require("../lib/DLL/circular-sentinel.js");
+const SortedDLL = require("../lib/DLL/sorted-sentinel.js");
+const AdjustedSLL = require("../lib/SLL/adjusted.js");
+const SLL = require("../lib/SLL/sll.js");
 
 describe('CSDLL', () => {
   it('push/pop', () => {
@@ -383,7 +383,7 @@ describe('SortedDLL', () => {
     assert.deepStrictEqual([...list], [1, 3, 5]);
   });
 
-  it('pop removes from the end', () => {
+  it('pop', () => {
     [10, 5, 20].forEach(v => list.insert(v));
     assert.strictEqual(list.pop(), 20);
     assert.deepStrictEqual([...list], [5, 10]);
@@ -391,7 +391,7 @@ describe('SortedDLL', () => {
     assert.strictEqual(list.pop(), 5);
   });
 
-  it('shift removes from the beginning', () => {
+  it('shift', () => {
     [10, 5, 20].forEach(v => list.insert(v));
     assert.strictEqual(list.shift(), 5);
     assert.deepStrictEqual([...list], [10, 20]);
@@ -400,54 +400,58 @@ describe('SortedDLL', () => {
     assert.strictEqual(list.shift(), null);
   });
 
-  it('delete removes specific value', () => {
-    [1, 2, 3, 4].forEach(v => list.insert(v));
-    const removed = list.delete(3);
-    assert.strictEqual(removed, true);
-    assert.deepStrictEqual([...list], [1, 2, 4]);
+  describe('delete', () => {
+    it('valid flow', () => {
+      [1, 2, 3, 4].forEach(v => list.insert(v));
+      const removed = list.delete(3);
+      assert.strictEqual(removed, true);
+      assert.deepStrictEqual([...list], [1, 2, 4]);
+    });
+
+    it('delete returns false if value not found', () => {
+      [1, 2, 3].forEach(v => list.insert(v));
+      assert.strictEqual(list.delete(99), false);
+      assert.deepStrictEqual([...list], [1, 2, 3]);
+      assert.deepStrictEqual((list.delete(2), [...list]), [1, 3]);
+      assert.deepStrictEqual((list.delete(1), [...list]), [3]);
+      assert.deepStrictEqual((list.delete(3), [...list]), []);
+      assert.deepStrictEqual((list.delete(3), [...list]), []);
+    });
   });
 
-  it('delete returns false if value not found', () => {
-    [1, 2, 3].forEach(v => list.insert(v));
-    assert.strictEqual(list.delete(99), false);
-    assert.deepStrictEqual([...list], [1, 2, 3]);
-    assert.deepStrictEqual((list.delete(2), [...list]), [1, 3]);
-    assert.deepStrictEqual((list.delete(1), [...list]), [3]);
-    assert.deepStrictEqual((list.delete(3), [...list]), []);
-    assert.deepStrictEqual((list.delete(3), [...list]), []);
-  });
-
-  it('find returns correct value', () => {
+  it('find', () => {
     [10, 20, 30].forEach(v => list.insert(v));
     assert.strictEqual(list.find(20).value, 20);
     assert.strictEqual(list.find(33), null);
   });
 
-  it('has returns true for existing value', () => {
-    [5, 10].forEach(v => list.insert(v));
-    assert.strictEqual(list.has(10), true);
+  describe('has', () => {
+    it('value exists', () => {
+      [5, 10].forEach(v => list.insert(v));
+      assert.strictEqual(list.has(10), true);
+    });
+
+    it('value doesn\'t exists', () => {
+      [5, 10].forEach(v => list.insert(v));
+      assert.strictEqual(list.has(99), false);
+    });
   });
 
-  it('has returns false for missing value', () => {
-    [5, 10].forEach(v => list.insert(v));
-    assert.strictEqual(list.has(99), false);
-  });
-
-  it('forward traversal visits elements in order', () => {
+  it('forward', () => {
     [3, 1, 2].forEach(v => list.insert(v));
     const values = [];
     list.forward(v => values.push(v));
     assert.deepStrictEqual(values, [1, 2, 3]);
   });
 
-  it('backward traversal visits elements in reverse order', () => {
+  it('backward', () => {
     [3, 1, 2].forEach(v => list.insert(v));
     const values = [];
     list.backward(v => values.push(v));
     assert.deepStrictEqual(values, [3, 2, 1]);
   });
 
-  it('iterator yields values in sorted order', () => {
+  it('[Symbol].iterator', () => {
     [7, 2, 5].forEach(v => list.insert(v));
     const collected = [];
     for (const v of list) {
@@ -456,7 +460,7 @@ describe('SortedDLL', () => {
     assert.deepStrictEqual(collected, [2, 5, 7]);
   });
 
-  it('handles empty list edge cases', () => {
+  it('edge cases', () => {
     assert.strictEqual(list.pop(), null);
     assert.strictEqual(list.shift(), null);
     assert.strictEqual(list.find(1), null);
