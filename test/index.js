@@ -8,7 +8,7 @@ const SortedDLL = require("../lib/DLL/sorted-sentinel.js");
 const AdjustedSLL = require("../lib/SLL/adjusted.js");
 const SLL = require("../lib/SLL/sll.js");
 
-describe.skip('CSDLL', () => {
+describe('CSDLL', () => {
   it('push/pop', () => {
     const list = new SentinelCircularDLL();
     list.push(1);
@@ -369,7 +369,7 @@ describe.skip('CSDLL', () => {
   });
 });
 
-describe.skip('SortedDLL', () => {
+describe('SortedDLL', () => {
   let list;
 
   beforeEach(() => {
@@ -554,7 +554,7 @@ describe('SLL adjusted', () => {
   });
 });
 
-describe.skip("SSL", () => {
+describe("SSL", () => {
   it("unshift/shift", () => {
     const list = new SLL();
     const node = list.unshift(1);
@@ -563,7 +563,6 @@ describe.skip("SSL", () => {
     assert.strictEqual(list.size, 2);
     const node3 = list.unshift(3);
     assert.strictEqual(list.size, 3);
-
     assert.deepStrictEqual(list.shift(), node3);
     assert.deepStrictEqual(list.size, 2);
     assert.deepStrictEqual(list.shift(), node2);
@@ -582,7 +581,6 @@ describe.skip("SSL", () => {
     assert.strictEqual(list.size, 2);
     const node3 = list.push(3);
     assert.strictEqual(list.size, 3);
-
     assert.deepStrictEqual(list.pop(), node3);
     assert.strictEqual(list.size, 2);
     assert.deepStrictEqual(list.pop(), node2);
@@ -624,18 +622,31 @@ describe.skip("SSL", () => {
     assert.strictEqual(list.size, 0);
   });
 
-  it("search", () => {
-    const list = new SLL();
-    const node = list.push(1);
-    const node2 = list.unshift(2);
-    const node3 = list.push(3);
-    const node4 = list.unshift(4);
-    const node5 = list.push(5);
-    assert.deepStrictEqual(list.search(5), node5);
-    assert.deepStrictEqual(list.search(4), node4);
-    assert.deepStrictEqual(list.search(2), node2);
-    assert.deepStrictEqual(list.search(1), node);
-    assert.deepStrictEqual(list.search(3), node3);
+  describe("search", () => {
+    it('empty', () => {
+      const list = new SLL();
+      assert.deepStrictEqual(list.search(42), null);
+      const node = list.push(1);
+      assert.deepStrictEqual(list.search(1), node);
+      list.shift();
+      assert.deepStrictEqual(list.search(1), null);
+    });
+
+    it('with items', () => {
+      const list = new SLL();
+      const node = list.push(1);
+      const node2 = list.unshift(2);
+      const node3 = list.push(3);
+      const node4 = list.unshift(4);
+      const node5 = list.push(5);
+      assert.deepStrictEqual(list.search(5), node5);
+      assert.deepStrictEqual(list.search(4), node4);
+      assert.deepStrictEqual(list.search(2), node2);
+      assert.deepStrictEqual(list.search(1), node);
+      assert.deepStrictEqual(list.search(3), node3);
+      assert.deepStrictEqual(list.search(42), null);
+    })
+
   });
 
   it("reverse", () => {
@@ -649,84 +660,164 @@ describe.skip("SSL", () => {
     assert.strictEqual(list.pop(), node3);
   });
 
-  it("middle", () => {
-    const list = new SLL();
-    assert.deepStrictEqual(list.middle, null);
-    const node = list.push(1);
-    assert.deepStrictEqual(list.middle, node);
-    const node2 = list.push(3);
-    assert.deepStrictEqual(list.middle, node);
-    const node3 = list.push(5);
-    assert.deepStrictEqual(list.middle, node2);
-    list.push(42);
-    assert.deepStrictEqual(list.middle, node2);
-    list.push(69);
-    assert.deepStrictEqual(list.middle, node3);
-  });
-
   it("concat", () => {
-    const list = new SLL();
-    list.push(1);
-    list.push(3);
-    list.push(5);
+    it('with items', () => {
+      const list = new SLL();
+      list.push(1);
+      list.push(3);
+      list.push(5);
+      const list2 = new SLL();
+      list2.push(42);
+      list2.push(69);
+      list.concat(list2);
+      assert.strictEqual(list.size, 5);
+      assert.strictEqual(list.shift().value, 1);
+      assert.strictEqual(list.shift().value, 3);
+      assert.strictEqual(list.shift().value, 5);
+      assert.strictEqual(list.shift().value, 42);
+      assert.strictEqual(list.shift().value, 69);
+    });
 
-    const list2 = new SLL();
-    list2.push(42);
-    list2.push(69);
+    it('empty base', () => {
+      const list = new SLL();
+      const list2 = new SLL();
+      list2.push(42);
+      list2.push(69);
+      list.concat(list2);
+      assert.strictEqual(list.size, 2);
+      assert.strictEqual(list.shift().value, 42);
+      assert.strictEqual(list.shift().value, 69);
+    });
 
-    list.concat(list2);
-    assert.strictEqual(list.size, 5);
-    assert.strictEqual(list.shift().value, 1);
-    assert.strictEqual(list.shift().value, 3);
-    assert.strictEqual(list.shift().value, 5);
-    assert.strictEqual(list.shift().value, 42);
-    assert.strictEqual(list.shift().value, 69);
+    it('empty list arg', () => {
+      const list = new SLL();
+      list.push(1);
+      list.push(3);
+      list.push(5);
+      const list2 = new SLL();
+      list.concat(list2);
+      assert.strictEqual(list.size, 3);
+      assert.strictEqual(list.shift().value, 1);
+      assert.strictEqual(list.shift().value, 3);
+      assert.strictEqual(list.shift().value, 5);
+    });
   });
 
-  it("merge", () => {
-    const list = new SLL();
-    list.push(-2);
-    list.push(1);
-    list.push(5);
-    list.push(42);
-
-    const list2 = new SLL();
-    list2.push(3);
-    list2.push(69);
-    list2.push(333);
-
-    const merged = list.merge(list2);
-    assert.strictEqual(merged.size, 7);
-
-    assert.strictEqual(merged.shift().value, -2);
-    assert.strictEqual(merged.shift().value, 1);
-    assert.strictEqual(merged.shift().value, 3);
-    assert.strictEqual(merged.shift().value, 5);
-    assert.strictEqual(merged.shift().value, 42);
-    assert.strictEqual(merged.shift().value, 69);
-    assert.strictEqual(merged.shift().value, 333);
+  describe("merge", () => {
+    it('presorted - ideal', () => {
+      const list = new SLL();
+      list.push(-2);
+      list.push(1);
+      list.push(5);
+      list.push(42);
+      const list2 = new SLL();
+      list2.push(3);
+      list2.push(69);
+      list2.push(333);
+      const merged = list.merge(list2);
+      assert.strictEqual(merged.size, 7);
+      assert.strictEqual(merged.shift().value, -2);
+      assert.strictEqual(merged.shift().value, 1);
+      assert.strictEqual(merged.shift().value, 3);
+      assert.strictEqual(merged.shift().value, 5);
+      assert.strictEqual(merged.shift().value, 42);
+      assert.strictEqual(merged.shift().value, 69);
+      assert.strictEqual(merged.shift().value, 333);
+    });
+    it('empty a, b presorted', () => {
+      const list = new SLL();
+      const list2 = new SLL();
+      list2.push(3);
+      list2.push(69);
+      list2.push(333);
+      const merged = list.merge(list2);
+      assert.strictEqual(merged.size, 3);
+      assert.strictEqual(merged.shift().value, 3);
+      assert.strictEqual(merged.shift().value, 69);
+      assert.strictEqual(merged.shift().value, 333);
+    });
+    it('empty b, a presorted', () => {
+      const list = new SLL();
+      list.push(-2);
+      list.push(1);
+      list.push(5);
+      list.push(42);
+      const list2 = new SLL();
+      const merged = list.merge(list2);
+      assert.strictEqual(merged.size, 4);
+      assert.strictEqual(merged.shift().value, -2);
+      assert.strictEqual(merged.shift().value, 1);
+      assert.strictEqual(merged.shift().value, 5);
+      assert.strictEqual(merged.shift().value, 42);
+    });
+    it('empty a & b', () => {
+      const list = new SLL();
+      const list2 = new SLL();
+      const merged = list.merge(list2);
+      assert.strictEqual(merged.size, 0);
+      assert.strictEqual(merged.shift(), null);
+      assert.strictEqual(merged.shift(), null);
+    });
   });
 
-  it('mergeSort', () => {
-    const list = new SLL();
-    list.push(42);
-    list.push(-2);
-    list.push(1);
-    list.push(69);
-    list.push(5);
-    list.push(333);
-    list.push(3);
+  describe('mergeSort', () => {
+    it('empty', () => {
+      const list = new SLL();
+      const merged = list.mergeSort();
+      assert.strictEqual(merged.size, 0);
+      assert.strictEqual(merged.shift(), null);
+      assert.strictEqual(merged.shift(), null);
+    });
+    it('one', () => {
+      const list = new SLL();
+      list.push(42);
+      const merged = list.mergeSort();
+      assert.strictEqual(merged.size, 1);
+      assert.strictEqual(merged.shift().value, 42);
+      assert.strictEqual(merged.shift(), null);
+      assert.strictEqual(merged.shift(), null);
+    });
+    it('two', () => {
+      const list = new SLL();
+      list.push(42);
+      list.push(33);
+      const merged = list.mergeSort();
+      assert.strictEqual(merged.size, 2);
+      assert.strictEqual(merged.shift().value, 33);
+      assert.strictEqual(merged.shift().value, 42);
+      assert.strictEqual(merged.shift(), null);
+      assert.strictEqual(merged.shift(), null);
+    });
+    it('not empty', () => {
+      const list = new SLL();
+      list.push(42);
+      list.push(-2);
+      list.push(1);
+      list.push(69);
+      list.push(5);
+      list.push(333);
+      list.push(3);
+      const merged = list.mergeSort();
+      assert.strictEqual(merged.size, 7);
+      assert.strictEqual(merged.shift().value, -2);
+      assert.strictEqual(merged.shift().value, 1);
+      assert.strictEqual(merged.shift().value, 3);
+      assert.strictEqual(merged.shift().value, 5);
+      assert.strictEqual(merged.shift().value, 42);
+      assert.strictEqual(merged.shift().value, 69);
+      assert.strictEqual(merged.shift().value, 333);
+      assert.strictEqual(merged.size, 0);
+    });
+  });
 
-    const merged = list.mergeSort();
-    assert.strictEqual(merged.size, 7);
-    assert.strictEqual(merged.shift().value, -2);
-    assert.strictEqual(merged.shift().value, 1);
-    assert.strictEqual(merged.shift().value, 3);
-    assert.strictEqual(merged.shift().value, 5);
-    assert.strictEqual(merged.shift().value, 42);
-    assert.strictEqual(merged.shift().value, 69);
-    assert.strictEqual(merged.shift().value, 333);
-    assert.strictEqual(merged.size, 0);
+  it('clear', () => {
+    const list = new SLL();
+    list.push(1);
+    list.push(2);
+    assert.strictEqual(list.size, 2);
+    list.clear();
+    assert.strictEqual(list.size, 0);
+    assert.strictEqual(list.pop(), null);
   });
 
   describe('cut', () => {
@@ -786,6 +877,7 @@ describe.skip("SSL", () => {
       assert.strictEqual(list.size, 0);
       assert.strictEqual(list.pop(), null);
     });
+
     it('single element, valid n', () => {
       const list = new SLL();
       list.push(42);
@@ -801,6 +893,7 @@ describe.skip("SSL", () => {
       assert.strictEqual(list.size, 1);
       assert.strictEqual(list.pop().value, 42);
     });
+
     it('remove head', () => {
       const list = new SLL();
       [1, 2, 3, 4].forEach(v => list.push(v));
@@ -808,6 +901,7 @@ describe.skip("SSL", () => {
       assert.strictEqual(list.size, 3);
       assert.deepStrictEqual([...list], [2, 3, 4]);
     });
+
     it('remove tail', () => {
       const list = new SLL();
       [1, 2, 3, 4].forEach(v => list.push(v));
@@ -815,6 +909,7 @@ describe.skip("SSL", () => {
       assert.strictEqual(list.size, 3);
       assert.deepStrictEqual([...list], [1, 2, 3]);
     });
+
     it('remove middle element', () => {
       const list = new SLL();
       [1, 2, 3, 4, 5].forEach(v => list.push(v));
@@ -822,6 +917,7 @@ describe.skip("SSL", () => {
       assert.strictEqual(list.size, 4);
       assert.deepStrictEqual([...list], [1, 2, 4, 5]);
     });
+
     it('n larger than size', () => {
       const list = new SLL();
       [10, 20, 30].forEach(v => list.push(v));
@@ -829,19 +925,19 @@ describe.skip("SSL", () => {
       assert.strictEqual(list.size, 3);
       assert.deepStrictEqual([...list], [10, 20, 30]);
     });
+
     it('massive random removals', () => {
       const N = 1000;
       const list = new SLL();
       for (let i = 1; i <= N; i++) list.push(i);
       for (let i = N; i > 0; i--) {
-        const n = Math.floor(Math.random() * i) + 1; // 1..i
-        list.remove(n);
+        list.remove(Math.floor(Math.random() * i) + 1);
       }
       assert.strictEqual(list.size, 0);
     });
   });
 
-  describe('SLL Palindrome Check', () => {
+  describe('palindrome', () => {
     it('empty list', () => {
       const list = new SLL();
       assert.strictEqual(list.isPalindrome(), true);
@@ -916,7 +1012,22 @@ describe.skip("SSL", () => {
     });
   });
 
-  it("iterator", () => {
+  it("middle", () => {
+    const list = new SLL();
+    assert.deepStrictEqual(list.middle, null);
+    const node = list.push(1);
+    assert.deepStrictEqual(list.middle, node);
+    const node2 = list.push(3);
+    assert.deepStrictEqual(list.middle, node);
+    const node3 = list.push(5);
+    assert.deepStrictEqual(list.middle, node2);
+    list.push(42);
+    assert.deepStrictEqual(list.middle, node2);
+    list.push(69);
+    assert.deepStrictEqual(list.middle, node3);
+  });
+
+  it("[Symbol.iterator]", () => {
     const list = new SLL();
     list.push(1);
     list.push(2);
