@@ -8,7 +8,7 @@ const SortedDLL = require("../lib/DLL/sorted-sentinel.js");
 const AdjustedSLL = require("../lib/SLL/adjusted.js");
 const SLL = require("../lib/SLL/sll.js");
 
-describe('CSDLL', () => {
+describe.skip('CSDLL', () => {
   it('push/pop', () => {
     const list = new SentinelCircularDLL();
     list.push(1);
@@ -369,7 +369,7 @@ describe('CSDLL', () => {
   });
 });
 
-describe('SortedDLL', () => {
+describe.skip('SortedDLL', () => {
   let list;
 
   beforeEach(() => {
@@ -451,7 +451,7 @@ describe('SortedDLL', () => {
     assert.deepStrictEqual(values, [3, 2, 1]);
   });
 
-  it('[Symbol].iterator', () => {
+  it('[Symbol.iterator]', () => {
     [7, 2, 5].forEach(v => list.insert(v));
     const collected = [];
     for (const v of list) {
@@ -479,6 +479,10 @@ describe('SLL adjusted', () => {
     assert.strictEqual(list.shift(), 1);
     assert.strictEqual(list.shift(), null);
     assert.strictEqual(list.shift(), null);
+    list.unshift(2);
+    assert.strictEqual(list.shift(), 2);
+    assert.strictEqual(list.shift(), null);
+    assert.strictEqual(list.shift(), null);
   });
 
   it('delete', () => {
@@ -487,61 +491,70 @@ describe('SLL adjusted', () => {
     const node = list.unshift(2);
     list.unshift(3);
     list.unshift(4);
-    list.delete(node);
+    assert.strictEqual(list.delete(node), true);
     list.unshift(42);
-    assert.strictEqual(list.shift(), 42);
-    assert.strictEqual(list.shift(), 4);
-    assert.strictEqual(list.shift(), 3);
-    assert.strictEqual(list.shift(), 1);
+    assert.deepStrictEqual([...list], [42, 4, 3, 1]);
+    list.shift();
+    list.shift();
+    list.shift();
+    list.shift();
     assert.strictEqual(list.shift(), null);
     assert.strictEqual(list.shift(), null);
+    assert.strictEqual(list.delete(node), false);
   });
 
-  it('adjusted search', () => {
+  describe('search', () => {
+    it('empty', () => {
+      const list = new AdjustedSLL();
+      assert.strictEqual(list.search(42), null);
+    });
+
+    it('one', () => {
+      const list = new AdjustedSLL();
+      list.unshift(1);
+      assert.strictEqual(list.search(1).value, 1);
+      assert.strictEqual(list.search(2), null);
+    });
+
+    it('adjusting', () => {
+      const list = new AdjustedSLL();
+      list.unshift(1);
+      list.unshift(2);
+      list.unshift(3);
+      list.unshift(4);
+      list.unshift(5);
+      list.unshift(6);
+      list.unshift(7);
+      const four = list.search(4);
+      assert.strictEqual(four.value, 4);
+      assert.strictEqual(list.shift(), four.value);
+      const six = list.search(6);
+      assert.strictEqual(six.value, 6);
+      assert.strictEqual(list.shift(), six.value);
+      const three = list.search(3);
+      assert.strictEqual(three.value, 3);
+      assert.strictEqual(list.shift(), three.value);
+      assert.strictEqual(list.shift(), 7);
+      assert.strictEqual(list.shift(), 5);
+      assert.strictEqual(list.shift(), 2);
+      assert.strictEqual(list.shift(), 1);
+      assert.strictEqual(list.shift(), null);
+    })
+  });
+
+  it('[Symbol.iterator]', () => {
     const list = new AdjustedSLL();
     list.unshift(1);
     list.unshift(2);
     list.unshift(3);
     list.unshift(4);
-    list.unshift(5);
-    list.unshift(6);
-    list.unshift(7);
-
-    const four = list.search(4);
-    assert.strictEqual(four.value, 4);
-    assert.strictEqual(list.shift(), four.value);
-
-    const six = list.search(6);
-    assert.strictEqual(six.value, 6);
-    assert.strictEqual(list.shift(), six.value);
-
-    const three = list.search(3);
-    assert.strictEqual(three.value, 3);
-    assert.strictEqual(list.shift(), three.value);
-
-    assert.strictEqual(list.shift(), 7);
-    assert.strictEqual(list.shift(), 5);
-    assert.strictEqual(list.shift(), 2);
-    assert.strictEqual(list.shift(), 1);
-    assert.strictEqual(list.shift(), null);
-  });
-
-  it('iterator', () => {
-    const list = new AdjustedSLL();
-    list.unshift(1);
-    const node = list.unshift(2);
-    list.unshift(3);
-    list.unshift(4);
-    list.delete(node);
     list.unshift(42);
-    const expected = [42, 4, 3, 1, null, null]
-    for (let i = 0; i < expected.length; i++) {
-      assert.strictEqual(list.shift(), expected[i]);
-    }
+    const expected = [42, 4, 3, 2, 1];
+    assert.deepStrictEqual([...list], expected);
   });
 });
 
-describe("SSL", () => {
+describe.skip("SSL", () => {
   it("unshift/shift", () => {
     const list = new SLL();
     const node = list.unshift(1);

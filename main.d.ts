@@ -5,8 +5,14 @@ interface DLLNode {
   value: any;
 }
 
+interface SLLNode {
+  next: SLLNode;
+  value: any;
+}
+
 type Callback = (value: any) => any;
 type Compare = (a: any, b: any) => number;
+
 export class SentinelCircularDLL {
   push(value: any): DLLNode;
   pop(): null | any;
@@ -37,4 +43,13 @@ export class SortedDLL {
   forward(callback: Callback): void;
   backward(callback: Callback): void;
   [Symbol.iterator](): Iterator<any>
+}
+
+export class AdjustedSLL {
+  unshift(value: any): SLLNode;
+  shift(): any;
+  delete(node: SLLNode): boolean;
+  search(value: any): SLLNode | null;
+  reset(): void;
+  [Symbol.iterator](): Iterator<any>;
 }
