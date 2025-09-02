@@ -201,6 +201,12 @@ describe('CSDLL', () => {
     assert.strictEqual(node2, null);
   });
 
+  it('iterator yields values in sorted order', () => {
+    const list = new SentinelCircularDLL();
+    [7, 2, 5].forEach(v => list.unshift(v));
+    assert.deepStrictEqual([...list], [5, 2, 7]);
+  });
+
   describe('makeFirst', () => {
     it('simple', () => {
       const list = new SentinelCircularDLL();
@@ -595,44 +601,26 @@ describe("SSL", () => {
     const node3 = list.push(3);
     const node4 = list.unshift(4);
     const node5 = list.push(5);
-    assert.deepStrictEqual(list.toArray(), [4, 2, 1, 3, 5]);
+    assert.deepStrictEqual([...list], [4, 2, 1, 3, 5]);
     assert.strictEqual(list.size, 5);
     list.delete(node4);
-    assert.deepStrictEqual(list.toArray(), [2, 1, 3, 5]);
+    assert.deepStrictEqual([...list], [2, 1, 3, 5]);
     assert.strictEqual(list.size, 4);
     list.delete(node3);
-    assert.deepStrictEqual(list.toArray(), [2, 1, 5]);
+    assert.deepStrictEqual([...list], [2, 1, 5]);
     assert.strictEqual(list.size, 3);
     list.delete(node5);
-    assert.deepStrictEqual(list.toArray(), [2, 1]);
+    assert.deepStrictEqual([...list], [2, 1]);
     assert.strictEqual(list.size, 2);
     list.delete(node2);
-    assert.deepStrictEqual(list.toArray(), [1]);
+    assert.deepStrictEqual([...list], [1]);
     assert.strictEqual(list.size, 1);
     list.delete(node);
-    assert.deepStrictEqual(list.toArray(), []);
+    assert.deepStrictEqual([...list], []);
     assert.strictEqual(list.size, 0);
     const deleted = list.delete(node);
     assert.strictEqual(deleted, false);
     assert.strictEqual(list.size, 0);
-  });
-
-  it("toArray", () => {
-    const list = new SLL();
-    list.push(1);
-    list.push(2);
-    list.push(3);
-    list.push(4);
-    list.push(5);
-    assert.deepStrictEqual(list.toArray(), [1, 2, 3, 4, 5]);
-
-    const list2 = new SLL();
-    list2.push(1);
-    list2.unshift(2);
-    list2.push(3);
-    list2.unshift(4);
-    list2.push(5);
-    assert.deepStrictEqual(list2.toArray(), [4, 2, 1, 3, 5]);
   });
 
   it("search", () => {
@@ -925,5 +913,23 @@ describe("SSL", () => {
       while (list.size > 0) result.push(list.pop().value);
       assert.deepStrictEqual(result.reverse(), arr);
     });
+  });
+
+  it("iterator", () => {
+    const list = new SLL();
+    list.push(1);
+    list.push(2);
+    list.push(3);
+    list.push(4);
+    list.push(5);
+    assert.deepStrictEqual([...list], [1, 2, 3, 4, 5]);
+
+    const list2 = new SLL();
+    list2.push(1);
+    list2.unshift(2);
+    list2.push(3);
+    list2.unshift(4);
+    list2.push(5);
+    assert.deepStrictEqual([...list2], [4, 2, 1, 3, 5]);
   });
 });
