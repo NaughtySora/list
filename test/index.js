@@ -81,21 +81,22 @@ describe('CSDLL', () => {
     assert.strictEqual(list.size, 0);
   });
 
+  it('[Symbol.iterator]', () => {
+    const list = new SentinelCircularDLL();
+    [7, 2, 5].forEach(v => list.unshift(v));
+    assert.deepStrictEqual([...list], [5, 2, 7]);
+  });
+
   it('before', () => {
     const list = new SentinelCircularDLL();
-
     list.unshift(1);
     assert.strictEqual(list.size, 1);
-
     const node = list.unshift(2);
     assert.strictEqual(list.size, 2);
-
     list.unshift(3);
     assert.strictEqual(list.size, 3);
-
     list.before(node, 42);
     assert.strictEqual(list.size, 4);
-
     const node2 = list.pop();
     const node3 = list.pop();
     const node4 = list.pop();
@@ -106,24 +107,18 @@ describe('CSDLL', () => {
     const node5 = list.shift();
     assert.strictEqual(list.size, 0);
     assert.strictEqual(node5, 3);
-
   });
 
-  it('before', () => {
+  it('after', () => {
     const list = new SentinelCircularDLL();
-
     list.unshift(1);
     assert.strictEqual(list.size, 1);
-
     const node = list.unshift(2);
     assert.strictEqual(list.size, 2);
-
     list.unshift(3);
     assert.strictEqual(list.size, 3);
-
     list.after(node, 42);
     assert.strictEqual(list.size, 4);
-
     const node2 = list.pop();
     const node3 = list.pop();
     const node4 = list.pop();
@@ -137,20 +132,25 @@ describe('CSDLL', () => {
   });
 
   it('delete', () => {
-    const list = new SentinelCircularDLL();
-    list.push(1);
-    const node = list.push(2);
-    list.push(3);
-    list.delete(node);
-    assert.strictEqual(list.size, 2);
-    assert.strictEqual(list.pop(), 3);
-    assert.strictEqual(list.pop(), 1);
-    assert.strictEqual(list.size, 0);
-    const list2 = new SentinelCircularDLL();
-    const node2 = list2.push(42);
-    assert.strictEqual(list2.size, 1);
-    list2.delete(node2);
-    assert.strictEqual(list2.size, 0);
+    {
+      const list = new SentinelCircularDLL();
+      list.push(1);
+      const node = list.push(2);
+      list.push(3);
+      assert.strictEqual(list.delete(node), true);
+      assert.strictEqual(list.size, 2);
+      assert.strictEqual(list.pop(), 3);
+      assert.strictEqual(list.pop(), 1);
+      assert.strictEqual(list.size, 0);
+    }
+    {
+      const list = new SentinelCircularDLL();
+      const node2 = list.push(42);
+      assert.strictEqual(list.size, 1);
+      assert.strictEqual(list.delete(node2), true);
+      assert.strictEqual(list.size, 0);
+      assert.strictEqual(list.delete(node2), false);
+    }
   });
 
   it('search', () => {
@@ -161,50 +161,30 @@ describe('CSDLL', () => {
       if (i === 42) target = value
       list.push(value);
     }
-
     const node = list.search(target);
     assert.strictEqual(node.value, target);
-
     const node2 = list.search('a');
     assert.strictEqual(node2, null);
   });
 
   it('forward', () => {
     const list = new SentinelCircularDLL();
-    let target;
-    for (const i of misc.range(255)) {
-      const value = misc.random(1000);
-      if (i === 42) target = value
-      list.push(value);
+    for (const _ of misc.range(25)) {
+      list.push(misc.random(1000));
     }
-
-    const node = list.forward(target);
-    assert.strictEqual(node.value, target);
-
-    const node2 = list.forward('a');
-    assert.strictEqual(node2, null);
+    const expected = [];
+    list.forward(value => expected.push(value));
+    assert.deepStrictEqual([...list], expected);
   });
 
   it('backward', () => {
     const list = new SentinelCircularDLL();
-    let target;
-    for (const i of misc.range(255)) {
-      const value = misc.random(1000);
-      if (i === 42) target = value
-      list.push(value);
+    for (const _ of misc.range(25)) {
+      list.push(misc.random(1000));
     }
-
-    const node = list.backward(target);
-    assert.strictEqual(node.value, target);
-
-    const node2 = list.backward('a');
-    assert.strictEqual(node2, null);
-  });
-
-  it('iterator yields values in sorted order', () => {
-    const list = new SentinelCircularDLL();
-    [7, 2, 5].forEach(v => list.unshift(v));
-    assert.deepStrictEqual([...list], [5, 2, 7]);
+    const expected = [];
+    list.backward(value => expected.push(value));
+    assert.deepStrictEqual([...list].reverse(), expected);
   });
 
   describe('makeFirst', () => {
@@ -317,7 +297,7 @@ describe('CSDLL', () => {
   });
 
   describe('makeLast', () => {
-    it('makeLast on tail node should keep order', () => {
+    it('tail node should keep order', () => {
       const list = new SentinelCircularDLL();
       list.push(1);
       list.push(2);
@@ -330,12 +310,11 @@ describe('CSDLL', () => {
       assert.strictEqual(list.size, 0);
     });
 
-    it('makeLast on head node should move to tail', () => {
+    it(' head node should move to tail', () => {
       const list = new SentinelCircularDLL();
       const n1 = list.push(1);
       list.push(2);
       list.push(3);
-
       list.makeLast(n1);
       assert.strictEqual(list.pop(), 1);
       assert.strictEqual(list.pop(), 3);
@@ -343,13 +322,12 @@ describe('CSDLL', () => {
       assert.strictEqual(list.size, 0);
     });
 
-    it('makeLast in the middle should reorder correctly', () => {
+    it('the middle should reorder correctly', () => {
       const list = new SentinelCircularDLL();
       list.push(10);
       const n20 = list.push(20);
       list.push(30);
       list.push(40);
-
       list.makeLast(n20);
       assert.strictEqual(list.pop(), 20);
       assert.strictEqual(list.pop(), 40);
@@ -358,30 +336,36 @@ describe('CSDLL', () => {
       assert.strictEqual(list.size, 0);
     });
 
-    it('makeLast repeatedly should cycle nodes correctly', () => {
+    it('should cycle nodes correctly', () => {
       const list = new SentinelCircularDLL();
       const n1 = list.push(1);
       const n2 = list.push(2);
       const n3 = list.push(3);
-
       list.makeLast(n2);
       list.makeLast(n3);
       list.makeLast(n1);
-
       assert.strictEqual(list.pop(), 1);
       assert.strictEqual(list.pop(), 3);
       assert.strictEqual(list.pop(), 2);
       assert.strictEqual(list.size, 0);
     });
 
-    it('makeLast on single-element list should be safe', () => {
+    it('single-element list should be safe', () => {
       const list = new SentinelCircularDLL();
       const n1 = list.push(42);
-
       list.makeLast(n1);
       assert.strictEqual(list.pop(), 42);
       assert.strictEqual(list.size, 0);
     });
+  });
+
+  it('reset', () => {
+    const list = new SentinelCircularDLL();
+    list.push(1);
+    list.push(2);
+    assert.strictEqual(list.size, 2);
+    list.reset();
+    assert.strictEqual(list.size, 0);
   });
 });
 
