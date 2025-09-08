@@ -11,7 +11,7 @@ interface SLLNode {
 }
 
 type Callback = (value: any) => any;
-type Compare = (a: any, b: any) => number;
+type Compare<N> = (a: N, b: N) => number;
 
 export class SentinelCircularDLL {
   push(value: any): DLLNode;
@@ -27,7 +27,7 @@ export class SentinelCircularDLL {
   makeFirst(node: DLLNode): void;
   makeLast(node: DLLNode): void;
   reset(): void;
-  [Symbol.iterator](): Iterator<any>
+  [Symbol.iterator](): Iterator<DLLNode>
   size: number;
 }
 
@@ -42,7 +42,7 @@ export class SortedDLL {
   find(value: any): null | DLLNode;
   forward(callback: Callback): void;
   backward(callback: Callback): void;
-  [Symbol.iterator](): Iterator<any>
+  [Symbol.iterator](): Iterator<DLLNode>
 }
 
 export class AdjustedSLL {
@@ -51,5 +51,25 @@ export class AdjustedSLL {
   delete(node: SLLNode): boolean;
   search(value: any): SLLNode | null;
   reset(): void;
-  [Symbol.iterator](): Iterator<any>;
+  [Symbol.iterator](): Iterator<SLLNode>;
+}
+
+export class SLL {
+  push(value: any): SLLNode;
+  pop(): null | SLLNode;
+  unshift(value: any): SLLNode;
+  shift(): null | SLLNode;
+  delete(node: SLLNode): boolean;
+  search(value: any): SLL | null;
+  reverse(): this;
+  concat(list: SLL): this;
+  merge(list: SLL, cmp?: Compare<SLLNode>): SLL;
+  mergeSort(compare: Compare<SLLNode>): this;
+  clear(): this;
+  cut(from: number): this;
+  remove(n: number): this;
+  isPalindrome(): boolean;
+  [Symbol.iterator](): Iterator<SLLNode>
+  size: number;
+  middle: SLLNode;
 }
