@@ -5,18 +5,24 @@
 - Simple SLL with tail and size.
   
 ```ts
-class SortedDLL {
-  constructor(compare: Compare);
-  reset(): void;
-  insert(value: any): DLLNode;
-  pop(): null | any;
-  shift(): null | any;
-  delete(value: any): boolean;
-  has(value: any): boolean;
-  find(value: any): null | DLLNode;
-  forward(callback: Callback): void;
-  backward(callback: Callback): void;
-  [Symbol.iterator](): Iterator<any>
+class SLL {
+  push(value: any): SLLNode;
+  pop(): null | SLLNode;
+  unshift(value: any): SLLNode;
+  shift(): null | SLLNode;
+  delete(node: SLLNode): boolean;
+  search(value: any): SLL | null;
+  reverse(): this;
+  concat(list: SLL): this;
+  merge(list: SLL, cmp?: Compare<SLLNode>): SLL;
+  mergeSort(compare: Compare<SLLNode>): this;
+  clear(): this;
+  cut(from: number): this;
+  remove(n: number): this;
+  isPalindrome(): boolean;
+  [Symbol.iterator](): Iterator<SLLNode>
+  size: number;
+  middle: SLLNode;
 }
 ```
 
@@ -29,7 +35,7 @@ class AdjustedSLL {
   delete(node: SLLNode): boolean;
   search(value: any): SLLNode | null;
   reset(): void;
-  [Symbol.iterator](): Iterator<any>;
+  [Symbol.iterator](): Iterator<SLLNode>;
 }
 ```
 
@@ -50,7 +56,7 @@ class SentinelCircularDLL {
   makeFirst(node: DLLNode): void;
   makeLast(node: DLLNode): void;
   reset(): void;
-  [Symbol.iterator](): Iterator<any>
+  [Symbol.iterator](): Iterator<DLLNode>
   size: number;
 }
 ```
@@ -68,6 +74,8 @@ class SortedDLL {
   find(value: any): null | DLLNode;
   forward(callback: Callback): void;
   backward(callback: Callback): void;
-  [Symbol.iterator](): Iterator<any>
+  [Symbol.iterator](): Iterator<DLLNode>
 }
 ```
+```
+
