@@ -77,5 +77,3 @@ class SortedDLL {
   [Symbol.iterator](): Iterator<DLLNode>
 }
 ```
-```
-
